@@ -14,29 +14,40 @@ Node* createNode(int data){
 	return newNode; 
 }
 
-char* budgetStatus(int balance, int expense){
-	if (balance >= expense){
+
+char* budgetStatus(int *balance, int *expense){
+	if (*balance >= *expense){
 		return "Within Budget";
 	} else return "Over Budget!";
 }
 
-void add_income(Node** head_ref, int income){
+
+void add_income(Node** head_ref, int income, int* balance, char* description){
 	Node* new_node = createNode(income);
 	new_node->next = (*head_ref);
+	new_node->is_expense = 0;
+	strcpy(new_node->description,description);
 	(*head_ref) = new_node;
+	*balance += income;
+	
 	
 }
 
-void add_expense(Node** head_ref, int expense){
+void add_expense(Node** head_ref, int expense, int *balance, char* description){
 	Node* new_node = createNode(expense);
 	new_node->next = (*head_ref);
-	(*head_ref) = new_node; 
+	strcpy(new_node->description, description);
+	new_node->is_expense = 1;
+	(*head_ref) = new_node;
+	*balance -= expense; 
 }
 
-void delete(struct Node** head_ref, int key_trans){
+// Need to fix on changing the balance after deleting the transaction. 
+void delete(struct Node** head_ref, int key_trans, int *balance){
 	Node *temp = *head_ref, *prev=NULL; 
 	if (temp != NULL && temp->data == key_trans){
-		*head_ref = temp->next; // change head 
+		*head_ref = temp->next; // change head
+		*balance -= temp->data; 
 		free(temp);
 		return; 
 	}
@@ -57,8 +68,14 @@ void delete(struct Node** head_ref, int key_trans){
 }
 
 void print(Node* node){
+	int i = 1;
 	while (node != NULL){
-		printf(" %d ", node->data);
+		if(node->is_expense){
+			printf("%d. %-20s%+6d\n", i, node->description, node->data);
+		}else{
+			printf("%d. %-20s%+6d\n", i, node->description, node->data);		
+		}
+		i = i + 1; 
 		node = node -> next;
 	}
 
@@ -70,8 +87,10 @@ void print(Node* node){
 int main(){
 
 	char resumeChoice;
-	char command[20]; 
-	int balance = 0, expense = 0;
+	char command[20];
+	char description[100]; 
+	int balance = 0, expense = 0, amount=0;
+	int key_trans;
 	
 	FILE* fptr; 
 
@@ -85,20 +104,59 @@ int main(){
 		fptr = fopen("transaction_log.txt", "r");
 		if (fptr == NULL){
 			printf("\nOpening File Failed\n");
-			printf("\nInititalizing a new linked list...\n"); 
-			Node *head_Node = createNode(balance);
+			printf("\nInititalizing a new linked list...\n");
+ 
+			Node *head_node = createNode(balance);
+
 			printf("\nTransaction loaded\n");
-			printf("Current Balance: $%d\n", balance); 
-			printf("Budget Status: %s\n", budgetStatus(balance, expense));
-			printf("\nInitial Transaction: $%d\n", head_Node -> data);
+			printf("Current balance: $%d\n", balance);
+			printf("Budget Status: %s\n", budgetStatus(&balance,& expense));
+			strcpy(head_node->description,"Initial Transaction");			
+
+			int running = 1; // flag 
+			while (running){
+				//Add income, expenses, delete
+				printf("Enter command: "); 
+				scanf(" %19[^\n]", command);
 			
-			//Add income, expenses, delete
-			printf("Enter command: "); 
-			scanf(" %19[^\n]", command);
-			
-			//condition to function 
-			if (command == "add income"){
-				printf()
+				//condition to function
+				//Add Income feature 
+				if (strcmp(command, "add income") == 0){
+					printf("Enter income description: ");
+					scanf(" %99[^\n]", description);
+					printf("Enter amount: ");
+					scanf("%d", &amount); 
+					add_income(&head_node, amount, &balance, description);
+					printf("\nCurrent balance: $%d\n", balance);
+                        		printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Add Expense Feature
+				 } else if(strcmp(command, "add expense") == 0){
+					printf("Enter expense description: ");
+					scanf(" %99[^\n]", description);
+					printf("Enter amount: ");
+                                        scanf("%d", &amount);
+                                        add_expense(&head_node, amount, &balance, description);
+                                        printf("\nCurrent balance: $%d\n", balance);
+                                        printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Quit the program 	
+				} else if(strcmp(command, "quit") == 0) {
+					running = 0; //Not running
+
+				//Delete Transaction Feature
+				} else if(strcmp(command, "delete") == 0){
+					printf("With transaction you want to delete?: ");
+					scanf("%d", &key_trans);
+					delete(&head_node, key_trans, &balance);               		  
+					printf("\nTransaction deleted\n");
+					printf("\nCurrent balance: $%d\n", balance);
+					printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Print Transaction feature
+				} else if (strcmp(command, "print") == 0) {
+					print(head_node);
+				}
 			}
 		}
 	} else if (resumeChoice == 'n'){
