@@ -8,7 +8,7 @@ typedef struct Node {
 Node* createNode(int data);
 void add_income(Node** head_ref, int income, int *balance, char* description);  
 void add_expense(Node** head_ref, int expense, int* balance, char* description);              
-void delete(Node** head_ref, int key, int *balance);
+void delete(Node** head_ref, int key, int *balance, char* description);
 void print(Node* node);
 void quit();
 char* budgetStatus(int *balance, int *expense);

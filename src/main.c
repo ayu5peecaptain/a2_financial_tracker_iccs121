@@ -24,28 +24,44 @@ char* budgetStatus(int *balance, int *expense){
 
 void add_income(Node** head_ref, int income, int* balance, char* description){
 	Node* new_node = createNode(income);
-	new_node->next = (*head_ref);
+	new_node->next = NULL;
 	new_node->is_expense = 0;
 	strcpy(new_node->description,description);
-	(*head_ref) = new_node;
+	if (*head_ref == NULL){
+		*head_ref = new_node; // list was empty
+	} else{
+		Node *temp = *head_ref; 
+		while (temp->next != NULL){
+			temp = temp -> next;
+		}
+		temp -> next = new_node; // attach to tail
+	}
 	*balance += income;
 	
 	
 }
 
 void add_expense(Node** head_ref, int expense, int *balance, char* description){
-	Node* new_node = createNode(expense);
-	new_node->next = (*head_ref);
+	Node* new_node = createNode(-expense);
+	new_node->next = NULL;
 	strcpy(new_node->description, description);
 	new_node->is_expense = 1;
-	(*head_ref) = new_node;
+	if (*head_ref == NULL){ 
+		*head_ref = new_node; // list was empty
+        } else{ 
+		Node *temp = *head_ref;
+                while (temp->next != NULL){ 
+                        temp = temp -> next;
+                }
+                temp -> next = new_node; // attach to tail
+	}
 	*balance -= expense; 
 }
 
 // Need to fix on changing the balance after deleting the transaction. 
-void delete(struct Node** head_ref, int key_trans, int *balance){
+void delete(struct Node** head_ref, int key_trans, int *balance, char* description){
 	Node *temp = *head_ref, *prev=NULL; 
-	if (temp != NULL && temp->data == key_trans){
+	if (temp != NULL && temp->data == key_trans && strcmp(temp->description,description) == 0){
 		*head_ref = temp->next; // change head
 		*balance -= temp->data; 
 		free(temp);
@@ -53,7 +69,7 @@ void delete(struct Node** head_ref, int key_trans, int *balance){
 	}
 	// Search for the key to be deleted
 	// Keep track of the previous node as we need to change 'prev->next'	
-	while(temp != NULL && temp->data != key_trans){
+	while((temp != NULL && temp->data != key_trans) && (strcmp(temp->description, description) != 0)){
 		prev = temp; 
 		temp = temp->next; 	
 	}
@@ -63,7 +79,8 @@ void delete(struct Node** head_ref, int key_trans, int *balance){
 	}
 	
 	// Unlink the node from linked list
-	prev->next = temp->next; 
+	prev->next = temp->next;
+	*balance -= temp->data; 
 	free(temp);
 }
 
@@ -146,9 +163,11 @@ int main(){
 
 				//Delete Transaction Feature
 				} else if(strcmp(command, "delete") == 0){
-					printf("With transaction you want to delete?: ");
+					printf("With transaction you want to delete? (Enter the amount): ");
 					scanf("%d", &key_trans);
-					delete(&head_node, key_trans, &balance);               		  
+					printf("In which description?: ");
+					scanf(" %99[^\n]", description);
+					delete(&head_node, key_trans, &balance, description);               		  
 					printf("\nTransaction deleted\n");
 					printf("\nCurrent balance: $%d\n", balance);
 					printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
