@@ -1,4 +1,0 @@
-INC|Initial Transaction|0.00
-INC|salary|10000.00
-EXP|rent|-5000.00
-INC|bonus|2000.00

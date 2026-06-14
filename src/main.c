@@ -86,11 +86,12 @@ void delete(struct Node** head_ref, float key_trans, float *balance, char* descr
 
 void print(Node* node){
 	int i = 1;
+	printf("[ Transactions ]\n");
 	while (node != NULL){
 		if(node->is_expense){
-			printf("%d. %-20s%+8.2f\n", i, node->description, node->data);
+			printf("%d. %-20s%+8.2f\t(new)\n", i, node->description, node->data);
 		}else{
-			printf("%d. %-20s%+8.2f\n", i, node->description, node->data);		
+			printf("%d. %-20s%+8.2f\t(new)\n", i, node->description, node->data);		
 		}
 		i = i + 1; 
 		node = node -> next;
@@ -150,6 +151,7 @@ int main(){
 					printf("Enter amount: ");
 					scanf("%f", &amount); 
 					add_income(&head_node, amount, &balance, description);
+					printf("Income added.\n\n");
 					printf("\nCurrent balance: $%.2f\n", balance);
                         		printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
 
@@ -160,6 +162,7 @@ int main(){
 					printf("Enter amount: ");
                                         scanf("%f", &amount);
                                         add_expense(&head_node, amount, &balance, description);
+					printf("Expense added.\n\n");
                                         printf("\nCurrent balance: $%.2f\n", balance);
                                         printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
 
@@ -167,6 +170,7 @@ int main(){
 				} else if(strcmp(command, "quit") == 0) {
 					// temporary pointer starting at head
 					Node* current = head_node; 
+					printf("Saving transaction to file...\n");
 					while(current != NULL){
 						if(current -> is_expense == 0){
 							fprintf(fptr, "INC|%s|%.2f\n", current->description, current->data);
@@ -177,8 +181,7 @@ int main(){
 						}
 					}
 					fclose(fptr);
-					printf("Data successfully saved to transaction_log.txt\n");
-					
+					printf("Done. Exiting program.\n");					
 					running = 0; //Not running
 					
 				//Delete Transaction Feature
@@ -239,6 +242,7 @@ int main(){
                                         printf("Enter amount: ");
                                         scanf("%f", &amount);
                                         add_income(&head_node, amount, &balance, description);
+					printf("Income added.\n\n");
                                         printf("\nCurrent balance: $%.2f\n", balance);
                                         printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
                                 
@@ -249,6 +253,7 @@ int main(){
                                         printf("Enter amount: ");
                                         scanf("%f", &amount);
                                         add_expense(&head_node, amount, &balance, description);
+					printf("Expense added.\n\n");
                                         printf("\nCurrent balance: $%.2f\n", balance);
                                         printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
 
@@ -256,6 +261,7 @@ int main(){
                                 } else if(strcmp(command, "quit") == 0) {
                                         // temporary pointer starting at head
                                         Node* current = head_node;
+					printf("Saving transactions to file...\n");
                                         while(current != NULL){
                                                 if(current -> is_expense == 0){
                                                         fprintf(fptr, "INC|%s|%.2f\n", current->description, current->data);
@@ -266,7 +272,7 @@ int main(){
                                                 }
                                         }
                                         fclose(fptr);
-                                        printf("Data successfully saved to transaction_log.txt\n");
+					printf("Done. Exiting Program.\n");
                                         running = 0; //Not running
                                 
                                 //Delete Transaction Feature
