@@ -128,11 +128,15 @@ int main(){
 			printf("\nTransaction loaded\n");
 			printf("Current balance: $%d\n", balance);
 			printf("Budget Status: %s\n", budgetStatus(&balance,& expense));
-			strcpy(head_node->description,"Initial Transaction");			
+			strcpy(head_node->description,"Initial Transaction");
+
+			// Create a transaction_log.txt in write mode
+			fptr = fopen("transaction_log.txt", "w");			
 
 			int running = 1; // flag 
 			while (running){
 				//Add income, expenses, delete
+				printf("List of Commands:\n> add income\n> add expense\n> print\n> delete\n> quit\n");
 				printf("Enter command: "); 
 				scanf(" %19[^\n]", command);
 			
@@ -159,8 +163,21 @@ int main(){
 
 				// Quit the program 	
 				} else if(strcmp(command, "quit") == 0) {
+					// temporary pointer starting at head
+					Node* current = head_node; 
+					while(current != NULL){
+						if(current -> is_expense == 0){
+							fprintf(fptr, "INC|%s|%d\n", current->description, current->data);
+							current = current -> next;
+						} else if (current -> is_expense == 1){
+							fprintf(fptr, "EXP|%s|%d\n", current->description, current->data);
+							current = current -> next;
+						}
+					}
+					fclose(fptr);
+					printf("Data successfully saved to transaction_log.txt\n");
 					running = 0; //Not running
-
+					
 				//Delete Transaction Feature
 				} else if(strcmp(command, "delete") == 0){
 					printf("With transaction you want to delete? (Enter the amount): ");
@@ -175,6 +192,7 @@ int main(){
 				// Print Transaction feature
 				} else if (strcmp(command, "print") == 0) {
 					print(head_node);
+					printf("\n");
 				}
 			}
 		}

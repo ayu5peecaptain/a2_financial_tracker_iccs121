@@ -1,0 +1,3 @@
+INC|Initial Transaction|0
+INC|salary|10000
+EXP|rent|-7000
