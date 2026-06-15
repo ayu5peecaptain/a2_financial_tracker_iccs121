@@ -136,10 +136,10 @@ int main(){
 	
 	FILE* fptr; 
 
-	printf("Welcome to your Personal Finance Tracker!\n"); 
+	printf("Welcome to your Personal Finance Tracker!\n");
 	printf("\nWould you like to resume your previous session? (y/n): ");
 	scanf("%c", &resumeChoice);
-	
+		
 	// Check User's choice of resuming a previous session or not
 	if (resumeChoice == 'y'){
 		printf("Resuming from last session...\n");
@@ -172,7 +172,12 @@ int main(){
 					printf("Enter income description: ");
 					scanf(" %99[^\n]", description);
 					printf("Enter amount: ");
-					scanf("%f", &amount); 
+					while(scanf("%f", &amount) != 1 || amount <= 0){
+						printf("Invalid input! Try again: ");
+						while(getchar() != '\n'); // clear the corrupted input buffer line
+					} 
+					while (getchar() != '\n'); // clear remaining newline character
+
 					printf("Insert at position: ");
 					scanf("%d", &position);
 					add_income(&head_node,position, amount, &balance, description);
@@ -185,7 +190,12 @@ int main(){
 					printf("Enter expense description: ");
 					scanf(" %99[^\n]", description);
 					printf("Enter amount: ");
-                                        scanf("%f", &amount);
+                    while(scanf("%f", &amount) != 1 || amount <= 0){
+						printf("Invalid input! Try again: ");
+						while(getchar() != '\n'); // clear the corrupted input buffer line
+					} 
+					while (getchar() != '\n'); // clear remaining newline character
+
 					
 					printf("Insert at Position: ");
 					scanf("%d", &position ); 
@@ -289,11 +299,16 @@ int main(){
                                         printf("Enter income description: ");
                                         scanf(" %99[^\n]", description);
                                         printf("Enter amount: ");
-                                        scanf("%f", &amount);
-					printf("Insert at position: ");
-					scanf("%d", &position);
-					add_income(&head_node,position, amount, &balance, description);
-					printf("Income added.\n\n");
+                                        while(scanf("%f", &amount) != 1 || amount <= 0){
+											printf("Invalid input! Try again: ");
+											while(getchar() != '\n'); // clear the corrupted input buffer line
+										} 
+										while (getchar() != '\n'); // clear remaining newline character
+
+										printf("Insert at position: ");
+										scanf("%d", &position);
+										add_income(&head_node,position, amount, &balance, description);
+										printf("Income added.\n\n");
                                         printf("\nCurrent balance: $%.2f\n", balance);
                                         printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
                                 
@@ -302,11 +317,16 @@ int main(){
                                         printf("Enter expense description: ");
                                         scanf(" %99[^\n]", description);
                                         printf("Enter amount: ");
-                                        scanf("%f", &amount);
-					printf("Insert at postion: ");
-					scanf("%d", &position);
+                                        while(scanf("%f", &amount) != 1 || amount <= 0){
+											printf("Invalid input! Try again: ");
+											while(getchar() != '\n'); // clear the corrupted input buffer line
+										} 
+										while (getchar() != '\n'); // clear remaining newline character
+
+										printf("Insert at postion: ");
+										scanf("%d", &position);
                                         add_expense(&head_node,position, amount, &balance, description);
-					printf("Expense added.\n\n");
+										printf("Expense added.\n\n");
                                         printf("\nCurrent balance: $%.2f\n", balance);
                                         printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
 
@@ -357,10 +377,118 @@ int main(){
                         }
 		}
 	} else if (resumeChoice == 'n'){
-		printf("User doesn't want to resume\n");
+		printf("Initializing a new session...");
+		fptr = fopen("transaction_log.txt", "w");
+		if (fptr == NULL){
+			printf("\nOpening File Failed\n");
+			printf("\nInititalizing a new linked list...\n");
+ 
+			Node *head_node = NULL;
+			
+
+			printf("\nNew Session Created\n");
+			printf("Current balance: $%.2f\n", balance);
+			printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+			strcpy(head_node->description,"Initial Transaction");		
+
+			int running = 1; // flag 
+			while (running){
+				//Add income, expenses, delete
+				printf("List of Commands:\n> add income\n> add expense\n> print\n> delete\n> quit\n");
+				printf("Enter command: "); 
+				scanf(" %19[^\n]", command);
+			
+				//condition to function
+				//Add Income feature 
+				if (strcmp(command, "add income") == 0){
+					printf("Enter income description: ");
+					scanf(" %99[^\n]", description);
+					printf("Enter amount: ");
+					while(scanf("%f", &amount) != 1 || amount <= 0){
+						printf("Invalid input! Try again: ");
+						while(getchar() != '\n'); // clear the corrupted input buffer line
+					} 
+					while (getchar() != '\n'); // clear remaining newline character
+
+					printf("Insert at position: ");
+					scanf("%d", &position);
+					add_income(&head_node,position, amount, &balance, description);
+					printf("Income added.\n\n");
+					printf("\nCurrent balance: $%.2f\n", balance);
+                        		printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Add Expense Feature
+				 } else if(strcmp(command, "add expense") == 0){
+					printf("Enter expense description: ");
+					scanf(" %99[^\n]", description);
+					printf("Enter amount: ");
+                    while(scanf("%f", &amount) != 1 || amount <= 0){
+						printf("Invalid input! Try again: ");
+						while(getchar() != '\n'); // clear the corrupted input buffer line
+					} 
+					while (getchar() != '\n'); // clear remaining newline character
+
+					
+					printf("Insert at Position: ");
+					scanf("%d", &position ); 
+                                        add_expense(&head_node,position, amount, &balance, description);
+					printf("Expense added.\n\n");
+                                        printf("\nCurrent balance: $%.2f\n", balance);
+                                        printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Quit the program 	
+				  } else if(strcmp(command, "quit") == 0) {
+
+                    			fclose(fptr);
+                    			fptr = fopen("transaction_log.txt", "w");
+                   	 		// fptr validation
+                    			if (fptr == NULL){
+                       	 			printf("Error: Could not open file for saving!\n");
+                        			return 0;
+                    			}
+                    		// temporary pointer starting at head
+                    		Node* current = head_node;
+                		printf("Saving transactions to file...\n");
+                    		while(current != NULL){  
+                        		if(current -> is_expense == 0){
+                            			fprintf(fptr, "INC|%s|%.2f\n", current->description, current->data);
+                        		}else {
+                                        
+                            			//change negative numbers in memory to positive
+                            			float save_amount = current->data < 0 ? -current->data: current->data;
+                            			fprintf(fptr, "EXP|%s|%.2f\n", current->description,save_amount);
+                                 
+                        		}
+                        		current = current->next;
+                    		}
+                                        
+                    		fclose(fptr);
+                    		printf("Done. Exiting Program.\n");
+                    		running = 0; //Not running
+					
+					
+				//Delete Transaction Feature
+				} else if(strcmp(command, "delete") == 0){
+					printf("Which transaction you want to delete? (Enter position): ");
+					scanf("%d", &position);
+					delete(&head_node, position, &balance);
+					printf("\nCurrent balance: $%.2f\n", balance);
+					printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+
+				// Print Transaction feature
+				} else if (strcmp(command, "print") == 0) {
+					print(head_node);
+					printf("\nCurrent balance: $%.2f\n", balance);
+                    printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
+				}
+			}
+	} else{
+		printf("Invalid input. Try again\n");
 	}
 	
 
 
 	return 0;
+} 
 }
+
