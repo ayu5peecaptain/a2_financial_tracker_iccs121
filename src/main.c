@@ -12,6 +12,8 @@ Node* createNode(float data){
 	newNode -> data = data; 
 	newNode -> next = NULL;
 	newNode -> is_saved = 0; 
+	newNode -> is_deleted = 0; 
+
 	return newNode; 
 }
 
@@ -76,43 +78,29 @@ void delete(Node** head_ref, int position, float *balance){
 
 	Node* temp = *head_ref;
 	
-	// case 1: Deleting the very first node (head)
-	if(position == 1){
-		*head_ref = temp->next; 
-		if(temp -> is_expense){
-			*balance += (-temp->data);
-		} else{
-			*balance -= temp->data; 
-		}
-		
-		free(temp);
-		printf("Transaction deleted.\n");
-		return; 
+	for (int i = 1; temp != NULL && i < position; i++){
+		temp = temp -> next;
 	}
-	
-	// case 2: Deleting middle or end node 
-	Node* prev = NULL;
-	for(int i = 1; temp != NULL && i < position; i++) {
-		prev = temp;
-		temp = temp->next;
-	}
-	
-	// If position is greater than the number of nodes in the list
+
 	if (temp == NULL){
 		printf("Error: Position out of bounds!\n");
 		return;
 	}
-	// Unlink the node from the linked list 
-	prev->next = temp->next; 
-	
-	// Update Balance and free memory 
-	if (temp -> is_expense){
-		*balance += (-temp->data);
-	} else{
-		*balance -= temp->data;
+
+	if(temp -> is_deleted){
+		printf("Error: Transaction already deleted.\n");
+		return;
 	}
-	free(temp);
-	printf("Transaction deleted");
+
+	// Mark for deletion
+	temp -> is_deleted = 1;
+
+	// Update balance
+	if(temp -> is_expense){
+		*balance += (-temp ->data);
+	} else{
+		*balance -= temp->data; 
+	}
 
 }
 
@@ -122,8 +110,17 @@ void print(Node* node){
 	int i = 1;
 	printf("[ Transactions ]\n");
 	while (node != NULL){
-		printf("%d. %-20s%+8.2f%15s\n", i, node->description, node->data, node->is_saved ? "(saved)" : "(new)");
-		i = i + 1; 
+		char* status;
+		if(node->is_deleted){
+			status = "--- d";
+		} else if(!node -> is_saved){
+			status = "+++ i";
+		} else{
+			status = "(saved)";
+		}
+		printf("%d. %-20s%+8.2f%15s\n", i, node->description, node->data, status);
+		i++;
+
 		node = node -> next;
 	}
 }
@@ -194,21 +191,26 @@ void run_session(Node** head_node, float* balance, float* expense, FILE** fptr){
                     // temporary pointer starting at head
                     Node* current = *head_node;
                 	printf("Saving transactions to file...\n");
-                    while(current != NULL){  
-                        if(current -> is_expense == 0){
-                            fprintf(*fptr, "INC|%s|%.2f\n", current->description, current->data);
-                    }else {         
-                    	//change negative numbers in memory to positive
-                    	float save_amount = current->data < 0 ? -current->data: current->data;
-                    	fprintf(*fptr, "EXP|%s|%.2f\n", current->description,save_amount);          
-                    }
-                    current = current->next;
+					while(current != NULL){
+						if(!current->is_deleted){
+							if(current->is_expense == 0){
+								fprintf(*fptr, "INC|%s|%.2f\n", current->description, current->data);
+							} else {
+								float save_amount = current->data < 0 ? -current->data : current -> data; 
+								fprintf(*fptr, "EXP|%s|%.2f\n", current->description, save_amount);
+							}
+						}
+						current = current->next;
+
+					
+                    
                 }
 
                 if(*fptr != NULL) fclose(*fptr);
                          
                 printf("Done. Exiting Program.\n");
                 running = 0; //Not running
+
 					
 					
 				//Delete Transaction Feature
@@ -228,7 +230,7 @@ void run_session(Node** head_node, float* balance, float* expense, FILE** fptr){
 				}
 			}
 			return; 
-}
+		}
 
 
 

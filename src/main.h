@@ -2,6 +2,7 @@ typedef struct Node {
         float data;
         int is_expense; // 1 = expense, 0 = income
 	int is_saved; // 1 = saved, 0  for new 
+        int is_deleted; // 1 = deleted 0 = not deleted 
         char description[100];
         struct Node* next;
 } Node;
