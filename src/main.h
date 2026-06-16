@@ -14,3 +14,5 @@ void print(Node* node);
 void quit();
 char* budgetStatus(float *balance, float *expense);
 void insert_at_position(Node** head_ref, Node* new_node, int position);
+void run_session(Node** head_node, float* balance, float* expense, FILE** fptr); 
+
