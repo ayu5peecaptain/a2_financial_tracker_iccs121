@@ -1,0 +1,4 @@
+EXP|lunch|60.00
+INC|income01|100000.00
+INC|income02|2.00
+EXP|nose tea|140.00

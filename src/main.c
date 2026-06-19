@@ -1,7 +1,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h>
-#include "main.h"
+#include "../include/main.h"
 
 Node* createNode(float data){ 
 	Node* newNode=(Node*)malloc(sizeof(Node)); 
@@ -181,7 +181,7 @@ void run_session(Node** head_node, float* balance, float* expense, FILE** fptr){
 				  } else if(strcmp(command, "quit") == 0) {
 
                     if(*fptr != NULL) fclose(*fptr);
-                    *fptr = fopen("transaction_log.txt", "w");
+                    *fptr = fopen("../logs/transaction_log.txt", "w");
                    	// fptr validation
                     if (*fptr == NULL){
                        	printf("Error: Could not open file for saving!\n");
@@ -252,7 +252,7 @@ int main(){
 	// Check User's choice of resuming a previous session or not
 	if (resumeChoice == 'y'){
 		printf("Resuming from last session...\n");
-		fptr = fopen("transaction_log.txt", "r");
+		fptr = fopen("../logs/transaction_log.txt", "r");
 		if (fptr == NULL){
 			printf("\nOpening File Failed\n");
 			printf("\nInititalizing a new linked list...\n");
@@ -265,7 +265,7 @@ int main(){
 			printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
 
 			// Create a transaction_log.txt in write mode
-			fptr = fopen("transaction_log.txt", "w");
+			fptr = fopen("../logs/transaction_log.txt", "w");
 			run_session(&head_node, &balance, &expense, &fptr);			
 
 			
@@ -312,7 +312,7 @@ int main(){
 			printf("\nNew Session Created\n");
 			printf("Current balance: $%.2f\n", balance);
 			printf("Budget Status: %s\n", budgetStatus(&balance,&expense));
-			fptr = fopen("transaction_log.txt", "w");
+			fptr = fopen("../logs/transaction_log.txt", "w");
 			run_session(&head_node, &balance, &expense, &fptr);			
 
 			
@@ -324,3 +324,4 @@ int main(){
 
 
 
+ 
